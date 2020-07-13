@@ -13,10 +13,20 @@ class Employee extends Component {
     ],
   };
 
+  employeeClickedHandler = (id) => {
+    this.props.history.push({
+      pathname: "/employee/" + id,
+    });
+    console.log(id);
+  };
+
   render() {
     return (
       <Auxiliary>
-        <EmployeeList employees={this.state.employees} />
+        <EmployeeList
+          employees={this.state.employees}
+          employeeClicked={this.employeeClickedHandler}
+        />
       </Auxiliary>
     );
   }

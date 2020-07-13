@@ -1,14 +1,14 @@
-import React, {Component} from "react";
+import React, { Component } from "react";
 import Auxiliary from "../Auxiliary/Auxiliary";
 import Toolbar from "../../components/Toolbar/Toolbar";
-import Employee from "../../containers/Employee/Employee";
+import classes from "./Layout.module.css";
 
 class Layout extends Component {
-  render () {
+  render() {
     return (
       <Auxiliary>
         <Toolbar />
-        <Employee />
+        <main className={classes.Content}>{this.props.children}</main>
       </Auxiliary>
     );
   }

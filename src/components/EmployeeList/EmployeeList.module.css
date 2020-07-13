@@ -1,0 +1,7 @@
+.EmpItem {
+  cursor: pointer;
+}
+
+.EmpItem:hover {
+  background: #cccccc;
+}
