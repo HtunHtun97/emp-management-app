@@ -3,7 +3,7 @@ import Navbar from "react-bootstrap/Navbar";
 import empLogo from "../../assets/images/logo.svg";
 
 const toolbar = (props) => (
-  <Navbar bg="dark" variant="dark">
+  <Navbar bg="dark" variant="dark" className="fixed-top">
     <Navbar.Brand>
       <img
         alt=""

@@ -12,7 +12,7 @@
   font-weight: bold;
 }
 
-.Button:hover {
+.Button:not(:disabled):hover {
   background-color: #cccccc;
 }
 

@@ -14,6 +14,7 @@ const input = (props) => {
       inputElement = (
         <input
           className={inputClasses.join(" ")}
+          value={props.value}
           onChange={props.changed}
           {...props.elementConfig}
         />
