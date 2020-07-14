@@ -1,0 +1,8 @@
+.PaginatorItem > a {
+  color: #5c9210;
+}
+
+.PaginatorItem > span {
+  background-color: #5c9210!important;
+  border-color: #5c9210!important;
+}
