@@ -1,12 +1,18 @@
 import React from "react";
-import { ListGroup, Button } from "react-bootstrap";
+import { ListGroup } from "react-bootstrap";
 import classes from "./EmployeeList.module.css";
 import Auxiliary from "../../hoc/Auxiliary/Auxiliary";
+import Button from "../UI/Button/Button";
 
 const employeeList = (props) => {
   let employees = props.employees.map((emp) => {
     return (
-      <ListGroup.Item as="li" key={emp.id} className={classes.EmpItem} onClick={() =>props.employeeClicked(emp.id)}>
+      <ListGroup.Item
+        as="li"
+        key={emp.id}
+        className={classes.EmpItem}
+        onClick={() => props.onEmployeeClick(emp.id)}
+      >
         {emp.name}
       </ListGroup.Item>
     );
@@ -17,7 +23,7 @@ const employeeList = (props) => {
       <div className="d-flex mt-3">
         <div className="p-2 mt-3">5 employees</div>
         <div className="ml-auto p-2">
-          <Button>New Employee</Button>
+          <Button btnType="Success" clicked={props.onEmployeeCreate}>New Employee</Button>
         </div>
       </div>
       <ListGroup as="ul">{employees}</ListGroup>
