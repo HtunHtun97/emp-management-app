@@ -1,5 +1,5 @@
 import React from "react";
-import { Route, Switch } from "react-router-dom";
+import { Route, Switch, Redirect } from "react-router-dom";
 
 import Employee from "./containers/Employee/Employee";
 import EmployeeList from "./components/EmployeeList/EmployeeEdit/EmployeeEdit";
@@ -11,9 +11,10 @@ function App() {
   return (
     <div>
       <Layout>
+        <Redirect from="/" to="/login" />
         <Switch>
-          <Route path="/" exact={true} component={Employee} />
-          <Route path="/employee/new" exact={true} component={employeeCreate} />
+          <Route path="/employee" exact component={Employee} />
+          <Route path="/employee/new" component={employeeCreate} />
           <Route
             path="/employee/:id"
             render={(props) => <EmployeeList {...props} />}

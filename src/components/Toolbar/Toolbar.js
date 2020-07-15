@@ -1,6 +1,8 @@
 import React from "react";
+import { NavLink } from "react-router-dom";
 import Navbar from "react-bootstrap/Navbar";
 import empLogo from "../../assets/images/logo.svg";
+import classes from "./Toolbar.module.css";
 
 const toolbar = (props) => (
   <Navbar bg="dark" variant="dark" className="fixed-top">
@@ -16,7 +18,19 @@ const toolbar = (props) => (
     </Navbar.Brand>
     <Navbar.Toggle />
     <Navbar.Collapse className="justify-content-end">
-      <Navbar.Text>Login</Navbar.Text>
+      {!props.session.isLoggedIn ? (
+        <NavLink exact className={classes.NavLink} to="/login">
+          Login
+        </NavLink>
+      ) : (
+        <NavLink
+          className={classes.NavLink}
+          to="/login"
+          onClick={props.handleLogout}
+        >
+          Logout
+        </NavLink>
+      )}
     </Navbar.Collapse>
   </Navbar>
 );

@@ -19,6 +19,7 @@ class EmployeeData extends Component {
         value: "",
         validation: {
           required: true,
+          maxLength: 255,
         },
         valid: false,
         touched: false,
@@ -34,6 +35,7 @@ class EmployeeData extends Component {
         value: "",
         validation: {
           required: true,
+          maxLength: 255,
         },
         valid: false,
         touched: false,
@@ -49,6 +51,7 @@ class EmployeeData extends Component {
         value: "",
         validation: {
           required: true,
+          maxLength: 255,
         },
         valid: false,
         touched: false,
@@ -64,6 +67,8 @@ class EmployeeData extends Component {
         value: "",
         validation: {
           required: true,
+          pattern: new RegExp(/^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s\\./0-9]*$/),
+          maxLength: 255,
         },
         valid: false,
         touched: false,
@@ -79,30 +84,25 @@ class EmployeeData extends Component {
         value: "",
         validation: {
           required: true,
+          maxLength: 255,
         },
         valid: false,
         touched: false,
       },
     },
     isFormValid: false,
-    loading: false,
   };
 
   componentDidMount() {
     if (this.props.type === "update") {
-      axios
-        .get("/users/" + this.props.match.params.id)
-        .then((response) => {
-          const updatedEmpForm = { ...this.state.empForm };
-          for (let inputElement in updatedEmpForm) {
-            updatedEmpForm[inputElement].value = response.data[inputElement];
-            updatedEmpForm[inputElement].valid = true;
-          }
-          this.setState({ empForm: updatedEmpForm });
-        })
-        .catch((error) => {
-          this.setState({ loading: false });
-        });
+      axios.get("/users/" + this.props.match.params.id).then((response) => {
+        const updatedEmpForm = { ...this.state.empForm };
+        for (let inputElement in updatedEmpForm) {
+          updatedEmpForm[inputElement].value = response.data[inputElement];
+          updatedEmpForm[inputElement].valid = true;
+        }
+        this.setState({ empForm: updatedEmpForm });
+      });
     }
   }
 
@@ -110,6 +110,12 @@ class EmployeeData extends Component {
     let isValid = true;
     if (rules.required) {
       isValid = value.trim() !== "" && isValid;
+    }
+    if (rules.pattern) {
+      isValid = rules.pattern.test(value) && isValid;
+    }
+    if (rules.maxLength) {
+      isValid = value.length <= rules.maxLength && isValid;
     }
     return isValid;
   }
@@ -133,7 +139,6 @@ class EmployeeData extends Component {
 
   createEmpHandler = (event) => {
     event.preventDefault();
-    this.setState({ loading: true });
     const empData = {};
     for (let formElementId in this.state.empForm) {
       empData[formElementId] = this.state.empForm[formElementId].value;
@@ -142,25 +147,31 @@ class EmployeeData extends Component {
       axios
         .put("/users/" + this.props.match.params.id, empData)
         .then((response) => {
-          this.setState({ loading: false });
           console.log(response);
-          this.props.history.push("/");
-        })
-        .catch((error) => {
-          this.setState({ loading: false });
+          alert("Successfully updated");
+          this.props.history.push("/employee");
         });
     } else {
-      axios
-        .post("/users", empData)
-        .then((response) => {
-          this.setState({ loading: false });
-          console.log(response);
-          this.props.history.push("/");
-        })
-        .catch((error) => {
-          this.setState({ loading: false });
-        });
+      axios.post("/users", empData).then((response) => {
+        console.log(response);
+        alert("Successfully created");
+        this.props.history.push("/employee");
+      });
     }
+  };
+
+  deleteEmpHandler = (event) => {
+    event.preventDefault();
+    axios
+      .delete("/users/" + this.props.match.params.id)
+      .then((response) => {
+        console.log(response);
+        alert("Successfully deleted");
+        this.props.history.goBack();
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   };
 
   backToPreviousHandler = (event) => {
@@ -177,7 +188,6 @@ class EmployeeData extends Component {
         config: this.state.empForm[key],
       });
     }
-
     let form = (
       <form onSubmit={this.createEmpHandler}>
         {formElementsArray.map((formElement) => {
@@ -197,12 +207,25 @@ class EmployeeData extends Component {
             />
           );
         })}
-        <Button btnType="Default" clicked={this.backToPreviousHandler}>
-          BACK
-        </Button>
-        <Button btnType="Success" disabled={!this.state.isFormValid}>
-          {this.props.type === "create" ? "CREATE" : "UPDATE"}
-        </Button>
+        <div className="d-flex">
+          <Button btnType="Default" clicked={this.backToPreviousHandler}>
+            BACK
+          </Button>
+          <Button btnType="Success" disabled={!this.state.isFormValid}>
+            {this.props.type === "create" ? "CREATE" : "UPDATE"}
+          </Button>
+          <div className="ml-auto p-2">
+            {this.props.type === "update" ? (
+              <p
+                style={{ cursor: "pointer" }}
+                className="text-danger text-right pt-3"
+                onClick={this.deleteEmpHandler}
+              >
+                Delete employee
+              </p>
+            ) : null}
+          </div>
+        </div>
       </form>
     );
     return <div className={classes.EmployeeData}>{form}</div>;
