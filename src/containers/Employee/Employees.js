@@ -2,11 +2,11 @@ import React, { Component } from "react";
 import axios from "../../axios-employees";
 import Auxiliary from "../../hoc/Auxiliary/Auxiliary";
 import withErrorHandler from "../../hoc/withErrorHandler/withErrorHandler";
-import EmployeeList from "../../components/EmployeeList/EmployeeList";
+import EmployeeList from "../../components/Employee/EmployeeList/EmployeeList";
 import Spinner from "../../components/UI/Spinner/Spinner";
 import Pagniator from "../../components/UI/Paginator/Paginator";
 
-class Employee extends Component {
+class Employees extends Component {
   state = {
     employees: [[]],
     total: 0,
@@ -33,12 +33,11 @@ class Employee extends Component {
           employees: res,
           total: response.data.length,
           itemsCount: itemsCount,
+          loading: false,
         });
-        this.setState({ loading: false });
       })
       .catch((error) => {
-        this.setState({ loading: false });
-        this.setState({ error: true });
+        this.setState({ loading: false, error: true });
       });
   }
 
@@ -94,4 +93,4 @@ class Employee extends Component {
   }
 }
 
-export default withErrorHandler(Employee, axios);
+export default withErrorHandler(Employees, axios);

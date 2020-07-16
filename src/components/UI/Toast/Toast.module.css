@@ -1,0 +1,7 @@
+.Toast {
+  position: fixed;
+  bottom: 0;
+  right: 25%;
+  min-width: 400px;
+  z-index: 9999;
+}

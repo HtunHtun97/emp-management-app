@@ -1,11 +1,13 @@
 import React, { Component } from "react";
 import axios from "../../../axios-employees";
-import classes from "./EmployeeData.module.css";
-import Input from "../../../components/UI/Input/Input";
-import Button from "../../../components/UI/Button/Button";
+import { checkValidity } from "../../../utils/validation";
+import Auxiliary from "../../../hoc/Auxiliary/Auxiliary";
+import Toast from "../../../components/UI/Toast/Toast";
+import Spinner from "../../../components/UI/Spinner/Spinner";
 import withErrorHandler from "../../../hoc/withErrorHandler/withErrorHandler";
+import EmployeeForm from "../../../components/Employee/EmployeeForm/EmployeeForm";
 
-class EmployeeData extends Component {
+class EmployeeUpdate extends Component {
   state = {
     empForm: {
       name: {
@@ -91,86 +93,76 @@ class EmployeeData extends Component {
       },
     },
     isFormValid: false,
+    showMessage: false,
+    message: null,
+    loading: false,
   };
 
   componentDidMount() {
-    if (this.props.type === "update") {
-      axios.get("/users/" + this.props.match.params.id).then((response) => {
+    this.setState({ loading: true });
+    axios
+      .get("/users/" + this.props.match.params.id)
+      .then((response) => {
         const updatedEmpForm = { ...this.state.empForm };
         for (let inputElement in updatedEmpForm) {
           updatedEmpForm[inputElement].value = response.data[inputElement];
           updatedEmpForm[inputElement].valid = true;
         }
-        this.setState({ empForm: updatedEmpForm });
-      });
-    }
-  }
-
-  checkValidity(value, rules) {
-    let isValid = true;
-    if (rules.required) {
-      isValid = value.trim() !== "" && isValid;
-    }
-    if (rules.pattern) {
-      isValid = rules.pattern.test(value) && isValid;
-    }
-    if (rules.maxLength) {
-      isValid = value.length <= rules.maxLength && isValid;
-    }
-    return isValid;
+        this.setState({ loading: false, empForm: updatedEmpForm });
+      })
+      .catch((error) => this.setState({ loading: false }));
   }
 
   inputChangedHandler = (event, inputId) => {
     const updatedEmpForm = { ...this.state.empForm };
     const updatedFormElement = { ...updatedEmpForm[inputId] };
     updatedFormElement.value = event.target.value;
-    updatedFormElement.valid = this.checkValidity(
+    updatedFormElement.valid = checkValidity(
       updatedFormElement.value,
       updatedFormElement.validation
     );
     updatedFormElement.touched = true;
     updatedEmpForm[inputId] = updatedFormElement;
     let isFormValid = true;
+
     for (let inputElement in updatedEmpForm) {
       isFormValid = updatedEmpForm[inputElement].valid && isFormValid;
     }
+    
     this.setState({ empForm: updatedEmpForm, isFormValid: isFormValid });
   };
 
-  createEmpHandler = (event) => {
+  employeeUpdatedHandler = (event) => {
+    this.setState({ loading: true });
     event.preventDefault();
     const empData = {};
+
     for (let formElementId in this.state.empForm) {
       empData[formElementId] = this.state.empForm[formElementId].value;
     }
-    if (this.props.type === "update") {
-      axios
-        .put("/users/" + this.props.match.params.id, empData)
-        .then((response) => {
-          console.log(response);
-          alert("Successfully updated");
-          this.props.history.push("/employee");
-        });
-    } else {
-      axios.post("/users", empData).then((response) => {
+
+    axios
+      .put("/users/" + this.props.match.params.id, empData)
+      .then((response) => {
         console.log(response);
-        alert("Successfully created");
-        this.props.history.push("/employee");
+        this.setState({ showMessage: true, message: "Successfully updated" });
+      })
+      .catch((error) => {
+        this.setState({ loading: false });
       });
-    }
   };
 
-  deleteEmpHandler = (event) => {
+  employeeDeletedHandler = (event) => {
+    this.setState({ loading: true });
     event.preventDefault();
     axios
       .delete("/users/" + this.props.match.params.id)
       .then((response) => {
         console.log(response);
-        alert("Successfully deleted");
-        this.props.history.goBack();
+        this.setState({ showMessage: true, message: "Successfully deleted" });
       })
       .catch((error) => {
-        console.log(error);
+        this.setState({ loading: false });
       });
   };
 
@@ -179,57 +171,36 @@ class EmployeeData extends Component {
     this.props.history.goBack();
   };
 
-  render() {
-    const formElementsArray = [];
+  alertCloseHandler = () => {
+    this.setState({ loading: false, showMessage: false });
+    this.props.history.replace("/employee");
+  };
 
-    for (let key in this.state.empForm) {
-      formElementsArray.push({
-        id: key,
-        config: this.state.empForm[key],
-      });
-    }
-    let form = (
-      <form onSubmit={this.createEmpHandler}>
-        {formElementsArray.map((formElement) => {
-          return (
-            <Input
-              key={formElement.id}
-              label={formElement.config.label}
-              elementType={formElement.config.elementType}
-              elementConfig={formElement.config.elementConfig}
-              value={formElement.config.value}
-              invalid={!formElement.config.valid}
-              shouldValidate={formElement.config.validation}
-              touched={formElement.config.touched}
-              changed={(event) =>
-                this.inputChangedHandler(event, formElement.id)
-              }
-            />
-          );
-        })}
-        <div className="d-flex">
-          <Button btnType="Default" clicked={this.backToPreviousHandler}>
-            BACK
-          </Button>
-          <Button btnType="Success" disabled={!this.state.isFormValid}>
-            {this.props.type === "create" ? "CREATE" : "UPDATE"}
-          </Button>
-          <div className="ml-auto p-2">
-            {this.props.type === "update" ? (
-              <p
-                style={{ cursor: "pointer" }}
-                className="text-danger text-right pt-3"
-                onClick={this.deleteEmpHandler}
-              >
-                Delete employee
-              </p>
-            ) : null}
-          </div>
-        </div>
-      </form>
+  render() {
+    let message = this.state.showMessage ? (
+      <Toast message={this.state.message} closed={this.alertCloseHandler} />
+    ) : null;
+    let employee = this.state.loading ? (
+      <Spinner />
+    ) : (
+      <EmployeeForm
+        formType="Update"
+        formData={this.state.empForm}
+        isFormValid={this.state.isFormValid}
+        submitted={this.employeeUpdatedHandler}
+        backClicked={this.backToPreviousHandler}
+        inputChanged={this.inputChangedHandler}
+        deleted={this.employeeDeletedHandler}
+      />
     );
-    return <div className={classes.EmployeeData}>{form}</div>;
+    return (
+      <Auxiliary>
+        {message}
+        <h1 className="text-center">Update Employee</h1>
+        {employee}
+      </Auxiliary>
+    );
   }
 }
 
-export default withErrorHandler(EmployeeData, axios);
+export default withErrorHandler(EmployeeUpdate, axios);

@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import classes from "./Login.module.css";
+import { checkValidity } from "../../utils/validation";
 import Auxiliary from "../../hoc/Auxiliary/Auxiliary";
 import Input from "../../components/UI/Input/Input";
 import Button from "../../components/UI/Button/Button";
@@ -52,22 +53,11 @@ class Login extends Component {
     this.props.handleLogin(userData);
   };
 
-  checkValidity(value, rules) {
-    let isValid = true;
-    if (rules.required) {
-      isValid = value.trim() !== "" && isValid;
-    }
-    if (rules.maxLength) {
-      isValid = value.length <= rules.maxLength && isValid;
-    }
-    return isValid;
-  }
-
   inputChangedHandler = (event, inputId) => {
     const updatedLoginForm = { ...this.state.loginForm };
     const updatedFormElement = { ...updatedLoginForm[inputId] };
     updatedFormElement.value = event.target.value;
-    updatedFormElement.valid = this.checkValidity(
+    updatedFormElement.valid = checkValidity(
       updatedFormElement.value,
       updatedFormElement.validation
     );

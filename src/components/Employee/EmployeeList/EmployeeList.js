@@ -1,8 +1,8 @@
 import React from "react";
 import { ListGroup } from "react-bootstrap";
 import classes from "./EmployeeList.module.css";
-import Auxiliary from "../../hoc/Auxiliary/Auxiliary";
-import Button from "../UI/Button/Button";
+import Auxiliary from "../../../hoc/Auxiliary/Auxiliary";
+import Button from "../../UI/Button/Button";
 
 const employeeList = (props) => {
   let employees = props.employees[props.activePage - 1].map((emp) => {
